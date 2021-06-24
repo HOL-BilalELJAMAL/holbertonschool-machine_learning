@@ -4,8 +4,7 @@
 Module that use transfer learning with DenseNet-169 to predict CIFAR-10 dataset
 """
 
-import tensorflow as tf
-import tensorflow.keras as k
+import tensorflow.keras as K
 
 
 def preprocess_data(X, Y):
@@ -20,79 +19,48 @@ def preprocess_data(X, Y):
         x_p (numpy.ndarray) containing the preprocessed X
         y_p (numpy.ndarray) containing the preprocessed Y
     """
-    x_p = k.applications.densenet.preprocess_input(X)
-    y_p = k.utils.to_categorical(Y, 10)
+    x_p = K.applications.resnet50.preprocess_input(X)
+    y_p = K.utils.to_categorical(Y)
     return x_p, y_p
 
 
-if __name__ == '__main__':
-    (X_train, Y_train), (X_val, Y_val) = k.datasets.cifar10.load_data()
+if __name__ == "__main__":
 
-    X_train, Y_train = preprocess_data(X_train, Y_train)
-
-    X_val, Y_val = preprocess_data(X_val, Y_val)
-
-    initializer = k.initializers.he_normal(seed=None)
-
-    input_shape_densenet = (224, 224, 3)
-
-    densenet_model = k.applications.DenseNet169(
-        include_top=False,
-        weights="imagenet",
-        input_tensor=None,
-        input_shape=input_shape_densenet,
-        pooling=None
-    )
-
-    densenet_model.trainable = True
-
-    for layer in densenet_model.layers:
-        if 'conv5' in layer.name:
-            layer.trainable = True
-        else:
-            layer.trainable = False
-
-    input = k.Input(shape=(32, 32, 3))
-
-    preprocess = k.layers.Lambda(
-        lambda x: tf.image.resize_images(x, (224, 224)), name='lamb')(input)
-
-    layer = densenet_model(inputs=preprocess)
-
-    layer = k.layers.Flatten()(layer)
-
-    layer = k.layers.BatchNormalization()(layer)
-
-    layer = k.layers.Dense(units=256,
-                           activation='relu',
-                           kernel_initializer=initializer
-                           )(layer)
-
-    layer = k.layers.Dropout(0.4)(layer)
-
-    layer = k.layers.BatchNormalization()(layer)
-
-    layer = k.layers.Dense(units=128,
-                           activation='relu',
-                           kernel_initializer=initializer
-                           )(layer)
-
-    layer = k.layers.Dropout(0.4)(layer)
-
-    layer = k.layers.Dense(units=10,
-                           activation='softmax',
-                           kernel_initializer=initializer
-                           )(layer)
-
-    model = k.models.Model(inputs=input, outputs=layer)
-
-    model.compile(loss='binary_crossentropy',
-                  optimizer=k.optimizers.Adam(),
-                  metrics=['accuracy'])
-
-    model.summary()
-
-    history = model.fit(X_train, Y_train, epochs=20, validation_data=(
-        X_val, Y_val), batch_size=32, verbose=1)
-
-    model.save('cifar10.h5')
+    def resize_images(X):
+        """Function that resizes data to be accepted by ResNet50 model"""
+        return K.backend.resize_images(X, 7, 7,
+                                       data_format="channels_last",
+                                       interpolation='bilinear')
+    (X_train, Y_train), (
+     X_valid, Y_valid) = K.datasets.cifar10.load_data()
+    optimizer = K.optimizers.Adam(lr=0.00001)
+    ResNet50_model = K.applications.ResNet50(weights='imagenet',
+                                             include_top=False,
+                                             input_shape=(224, 224, 3))
+    ResNet50_model.trainable = False
+    input = K.Input(shape=(32, 32, 3))
+    lambda_1 = K.layers.Lambda(resize_images)(input)
+    x = ResNet50_model(lambda_1, training=False)
+    x = K.layers.Flatten()(x)
+    x = K.layers.BatchNormalization()(x)
+    x = K.layers.Dense(128, activation='relu')(x)
+    x = K.layers.Dropout(0.5)(x)
+    x = K.layers.BatchNormalization()(x)
+    x = K.layers.Dense(64, activation='relu')(x)
+    x = K.layers.Dropout(0.5)(x)
+    x = K.layers.BatchNormalization()(x)
+    x = K.layers.Dense(10, activation='softmax')(x)
+    model = K.Model(input, x)
+    model.compile(optimizer=optimizer,
+                  loss='categorical_crossentropy', metrics=['accuracy'])
+    epochs = 20
+    batch_size = 256
+    xt_prep, yt_prep = preprocess_data(X_train, Y_train)
+    xv_prep, yv_prep = preprocess_data(X_valid, Y_valid)
+    my_callbacks = [K.callbacks.ModelCheckpoint(
+                    filepath='cifar10.h5', save_best_only=True)]
+    model.fit(xt_prep, yt_prep,
+              batch_size=batch_size,
+              validation_data=(xv_prep, yv_prep),
+              epochs=epochs,
+              callbacks=my_callbacks)
