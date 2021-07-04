@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 """
-4-neural_style.py
-Module that defines a class NST that performs tasks for neural style transfer
+Create a class NST that performs tasks for neural style transfer
 """
-
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.applications.vgg19 import preprocess_input
