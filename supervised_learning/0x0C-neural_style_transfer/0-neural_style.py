@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Create a class NST that performs tasks for neural style transfer
+0-neural_style.py
+Module that defines a class NST that performs tasks for neural style transfer
 """
 import numpy as np
 import tensorflow as tf
