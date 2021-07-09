@@ -161,11 +161,13 @@ class NST:
         :return: style cost
         """
         my_length = len(self.style_layers)
-        err = \
-            'style_outputs must be a list with a length of {}'. \
-            format(my_length)
-        if (not type(style_outputs) is list or
-                len(self.style_layers) != len(style_outputs)):
+        err = 'style_outputs must be a list with a length of {}'\
+            .format(my_length)
+
+        if not isinstance(style_outputs, list):
+            raise TypeError(err)
+
+        if len(self.style_layers) != len(style_outputs):
             raise TypeError(err)
 
         # each layer should be weighted evenly with
