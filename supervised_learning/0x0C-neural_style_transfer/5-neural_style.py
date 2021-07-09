@@ -154,25 +154,18 @@ class NST:
         return tf.reduce_mean(tf.square(gram_style - gram_target))
 
     def style_cost(self, style_outputs):
-        """function that calculates the style cost for all
-        style_output layers"""
-
-        # Reminders:
-        # style_layers is a list of name strings
-        # style_outputs is a list of tensors
-
-        style_costs = []
-        # each layer should be weighted evenly with all weights summing to 1
-        weight = 1 / len(self.style_layers)
-
-        for style_output, gram_target in zip(
-                style_outputs, self.gram_style_features):
-
-            layer_style_cost = self.layer_style_cost(style_output, gram_target)
-            weighted_layer_style_cost = weight * layer_style_cost
-            style_costs.append(weighted_layer_style_cost)
-
-        # Add all the tensor values from the list
-        style_cost = tf.add_n(style_costs)
-
+        """
+        Calculates the style cost
+        Returns: the style cost
+        """
+        if len(style_outputs) != len(self.style_layers):
+            raise TypeError("style_outputs must be a list with a length of \
+            {l} where {l} is the length of self.style_layers")
+        style_cost = 0
+        weight_per_layer = 1.0 / len(style_outputs)
+        for i in range(len(style_outputs)):
+            layer_style_cost = self.layer_style_cost(
+                style_outputs[i],
+                self.gram_style_features[i])
+            style_cost += tf.reduce_sum(layer_style_cost) * weight_per_layer
         return style_cost
