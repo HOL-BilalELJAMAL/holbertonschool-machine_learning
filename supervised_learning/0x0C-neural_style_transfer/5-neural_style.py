@@ -157,13 +157,6 @@ class NST:
         """function that calculates the style cost for all
         style_output layers"""
 
-        err = "style_outputs must be a list with a length of {}".format(
-            len(self.style_layers))
-        if not isinstance(style_outputs, list):
-            raise TypeError(err)
-        if len(self.style_layers) != len(style_outputs):
-            raise TypeError(err)
-
         # Reminders:
         # style_layers is a list of name strings
         # style_outputs is a list of tensors
