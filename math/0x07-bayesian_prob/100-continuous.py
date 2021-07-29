@@ -22,26 +22,19 @@ def posterior(x, n, p1, p2):
         The posterior probability that p is within the range [p1, p2]
         given x and n
     """
-
-    if not isinstance(n, (int, float)) or n <= 0:
+    if type(n) is not int or n < 1:
         raise ValueError("n must be a positive integer")
-
-    if not isinstance(x, (int, float)) or x < 0:
-        message = "x must be an integer that is greater than or equal to 0"
-        raise ValueError(message)
-
+    if type(x) is not int or x < 0:
+        text = "x must be an integer that is greater than or equal to 0"
+        raise ValueError(text)
     if x > n:
         raise ValueError("x cannot be greater than n")
-
-    if not isinstance(p1, float) or np.any(p1 > 1) or np.any(p1 < 0):
+    if (not isinstance(p1, float)) or p1 < 0 or p1 > 1:
         raise ValueError("p1 must be a float in the range [0, 1]")
-
-    if not isinstance(p2, float) or np.any(p2 > 1) or np.any(p2 < 0):
+    if (not isinstance(p2, float)) or p2 < 0 or p2 > 1:
         raise ValueError("p2 must be a float in the range [0, 1]")
-
     if p2 <= p1:
         raise ValueError("p2 must be greater than p1")
-
     f1 = x + 1
     f2 = n - x + 1
     ac1 = special.btdtr(f1, f2, p1)
