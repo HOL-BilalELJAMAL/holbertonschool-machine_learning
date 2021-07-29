@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 1-intersection.py
-Module that defines a function called likelihood and intersection
+Module that defines a functions called likelihood and intersection
 """
 import numpy as np
 
