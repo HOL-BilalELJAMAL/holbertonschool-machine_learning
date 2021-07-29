@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 2-marginal.py
-Module that defines a function called likelihood, intersection and marginal
+Module that defines a functions called likelihood, intersection and marginal
 """
 import numpy as np
 
