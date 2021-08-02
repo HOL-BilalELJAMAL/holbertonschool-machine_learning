@@ -63,10 +63,11 @@ def minor(matrix):
         matrix (list): matrix to calculate.
 
     Returns:
-        the determinant.
+        The minor.
     """
     if type(matrix) is not list or len(matrix) == 0:
         raise TypeError("matrix must be a list of lists")
+
     if all([type(i) is list for i in matrix]) is False:
         raise TypeError("matrix must be a list of lists")
 
