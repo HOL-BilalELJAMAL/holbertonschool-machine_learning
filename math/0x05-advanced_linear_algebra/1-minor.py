@@ -6,14 +6,11 @@ Module that defines a function called minor
 
 
 def minor_m(m, row, col):
-    """
-    Function that omits the the given row and column of a square matrix.
-
+    """Omite the the given row and column of a square matrix.
     Args:
         m (list): matrix.
         row (int): row to omite.
         col (int): column to omite.
-
     Returns:
         the matrix with the omited row, column.
     """
@@ -22,12 +19,9 @@ def minor_m(m, row, col):
 
 
 def determinant(matrix):
-    """
-    Function that calculates the determinant of a square matrix.
-
+    """ Calculates the determinant of a square matrix.
     Args:
         matrix (list): matrix to calculate.
-
     Returns:
         the determinant.
     """
@@ -57,22 +51,19 @@ def determinant(matrix):
 
 
 def minor(matrix):
-    """
-    Function that calculates the minor of a square matrix.
-
+    """ Calculates the minor of a square matrix.
     Args:
         matrix (list): matrix to calculate.
-
     Returns:
-        The minor.
+        the determinant.
     """
     if type(matrix) is not list or len(matrix) == 0:
         raise TypeError("matrix must be a list of lists")
-
     if all([type(i) is list for i in matrix]) is False:
         raise TypeError("matrix must be a list of lists")
 
-    if (len(matrix) == 0 or len(matrix) != len(matrix[0])) or matrix == [[]]:
+    if (len(matrix) == 0 or len(matrix) != len(matrix[0])) \
+            or matrix == [[]]:
         raise ValueError("matrix must be a non-empty square matrix")
 
     if any([len(l) != len(matrix) for l in matrix]):
