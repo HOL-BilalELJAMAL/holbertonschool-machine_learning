@@ -6,7 +6,8 @@ Module that defines a function called minor
 
 
 def minor_m(m, row, col):
-    """Function that omits the the given row and column of a square matrix.
+    """
+    Function that omits the the given row and column of a square matrix.
 
     Args:
         m (list): matrix.
@@ -71,8 +72,7 @@ def minor(matrix):
     if all([type(i) is list for i in matrix]) is False:
         raise TypeError("matrix must be a list of lists")
 
-    if (len(matrix) == 0 or len(matrix) != len(matrix[0])) \
-            or matrix == [[]]:
+    if (len(matrix) == 0 or len(matrix) != len(matrix[0])) or matrix == [[]]:
         raise ValueError("matrix must be a non-empty square matrix")
 
     if any([len(l) != len(matrix) for l in matrix]):
