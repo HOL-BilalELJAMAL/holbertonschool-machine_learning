@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-4. Inverse
+4-inverse.py
+Module that defines a function called inverse
 """
 
 
@@ -22,26 +23,21 @@ def recursive_determinant(matrix, total=0):
     Returns:
         the determinant of 2D matrix
     """
-    # Extract all indices of matrix
     indices = list(range(len(matrix)))
 
-    # This method works recursively, always we gonna calculate the
-    # determinant of a 2D matrix
     if len(matrix) == 2:
         return determinant_2D(matrix)
 
     for index in indices:
         cp_matrix = matrix.copy()
-        # Remove the first column
+
         cp_matrix = cp_matrix[1:]
 
         rows_length = len(cp_matrix)
 
         for i in range(rows_length):
-            # Removes column
             cp_matrix[i] = cp_matrix[i][0:index] + cp_matrix[i][index + 1:]
 
-        # Change the sign of all pairs indices
         sign = (-1) ** (index % 2)
 
         sub_det = recursive_determinant(cp_matrix)
@@ -52,22 +48,25 @@ def recursive_determinant(matrix, total=0):
 
 
 def determinant(matrix):
-    """ calculates the determinant of a matrix
+    """
+    Function that calculates the determinant of a matrix.
+
     Args:
         matrix - is a list of lists whose determinant should be calculated
+
     Returns:
         the determinant of matrix
     """
     if matrix == [[]]:
         return 1
 
-    # Check if matrix is a list of lists and matrix is a square matrix
     len_col = [len(row) for row in matrix]
     if isinstance(matrix, list) and len(matrix) is not 0:
         if not all(isinstance(row, list) for row in matrix):
             raise TypeError("matrix must be a list of lists")
     else:
         raise TypeError("matrix must be a list of lists")
+
     if not all(len(matrix) == col for col in len_col):
         raise ValueError('matrix must be a square matrix')
 
@@ -78,11 +77,14 @@ def determinant(matrix):
 
 
 def get_minor(matrix, i, j):
-    """ Returns the minors without the determinant
+    """
+    Function that returns the minors without the determinant
+
     Args:
         matrix - list of list of cofactors
         i - coordenate in i
         j - coordenate in j
+
     Returns:
         The minor with the determinant calculate
     """
@@ -91,20 +93,25 @@ def get_minor(matrix, i, j):
 
 
 def minor(matrix):
-    """ calculates the minor matrix of a matrix
+    """
+    Function that calculates the minor matrix of a matrix
+
     Args:
         matrix - is a list of lists whose minor matrix should be calculated
+
     Returns:
-        the minor matrix of matrix
+        The minor matrix of matrix
     """
     len_col = [len(row) for row in matrix]
     if not isinstance(matrix, list):
         raise TypeError("matrix must be a list of lists")
+
     if isinstance(matrix, list) and len(matrix) is not 0:
         if not all(isinstance(row, list) for row in matrix):
             raise TypeError("matrix must be a list of lists")
     else:
         raise TypeError("matrix must be a list of lists")
+
     if matrix == [[]]:
         raise ValueError('matrix must be a non-empty square matrix')
     if not all(len(matrix) == col for col in len_col):
@@ -123,9 +130,12 @@ def minor(matrix):
 
 
 def cofactor(matrix):
-    """ Calculates the cofactor matrix of a matrix
+    """
+    Function that calculates the cofactor matrix of a matrix
+
     Args:
         matrix - is a list of lists whose cofactor matrix should be calculated
+
     Returns:
         The cofactor matrix of matrix
     """
@@ -138,10 +148,12 @@ def cofactor(matrix):
 
 
 def transpose(matrix):
-    """ Transpose
-    Returns the transpose of a matrix
+    """
+    Function that transposes a matrix
+
     Args:
         Matrix - Is a list of lists
+
     Returns:
         The transpose of a matrix
     """
@@ -149,9 +161,12 @@ def transpose(matrix):
 
 
 def adjugate(matrix):
-    """ calculates the adjugate matrix of a matrix
+    """
+    Function that calculates the adjugate of a matrix
+
     Args:
         matrix - is a list of lists whose adjugate matrix should be calculated
+
     Returns:
         the adjugate matrix of matrix
     """
@@ -161,9 +176,11 @@ def adjugate(matrix):
 
 def inverse(matrix):
     """
-    Calculates the inverse of a matrix
+    Function that calculates the inverse of a matrix
+
     Args:
         matrix - is a list of lists whose inverse should be calculated
+
     Returns:
         the inverse of matrix, or None if matrix is singular
     """
@@ -171,8 +188,10 @@ def inverse(matrix):
     len_col = [len(row) for row in matrix]
     if not all(len(matrix) == col for col in len_col):
         raise ValueError('matrix must be a non-empty square matrix')
+
     if not isinstance(matrix, list):
         raise TypeError("matrix must be a list of lists")
+
     if isinstance(matrix, list) and len(matrix) is not 0:
         if not all(isinstance(row, list) for row in matrix):
             raise TypeError("matrix must be a list of lists")
