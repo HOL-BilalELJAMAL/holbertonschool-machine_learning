@@ -1,113 +1,87 @@
 #!/usr/bin/env python3
-"""
-Determinant
-"""
-
-
-def minor_m(m, row, col):
-    """Omite the the given row and column of a square matrix.
-    Args:
-        m (list): matrix.
-        row (int): row to omite.
-        col (int): column to omite.
-    Returns:
-        the matrix with the omited row, column.
-    """
-    return [[m[i][j] for j in range(len(m[i])) if j != col]
-            for i in range(len(m)) if i != row]
-
-
-def determinant(matrix):
-    """ Calculates the determinant of a square matrix.
-    Args:
-        matrix (list): matrix to calculate.
-    Returns:
-        the determinant.
-    """
-    if type(matrix) is not list or len(matrix) == 0:
-        raise TypeError("matrix must be a list of lists")
-    if all([type(i) is list for i in matrix]) is False:
-        raise TypeError("matrix must be a list of lists")
-
-    if matrix[0] and len(matrix) != len(matrix[0]):
-        raise ValueError("matrix must be a square matrix")
-
-    if matrix == [[]]:
-        return 1
-
-    if len(matrix) == 1:
-        return matrix[0][0]
-
-    if len(matrix) == 2:
-        return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]
-
-    det = 0
-    for j in range(len(matrix[0])):
-        omited_matrix = minor_m(matrix, 0, j)
-        det += matrix[0][j] * ((-1) ** j) * determinant(omited_matrix)
-
-    return det
-
-
-def transponse(m):
-    """ Transpose a matrix
-    Args:
-        m (list): matrix.
-    Returns:
-        the transposed matrix
-    """
-    return [[m[row][col] for row in range(len(m))]
-            for col in range(len(m[0]))]
-
-
-def adjugate(matrix):
-    """ Calculates the adjugate of a square matrix.
-    Args:
-        matrix (list): matrix to calculate.
-    Returns:
-        the adjugate.
-    """
-    if type(matrix) is not list or len(matrix) == 0:
-        raise TypeError("matrix must be a list of lists")
-    if all([type(i) is list for i in matrix]) is False:
-        raise TypeError("matrix must be a list of lists")
-
-    if (matrix[0] and len(matrix) != len(matrix[0])) or \
-            matrix == [] or matrix == [[]]:
-        raise ValueError("matrix must be a non-empty square matrix")
-
-    if len(matrix) == 1 and len(matrix[0]) == 1:
-        return [[1]]
-
-    cofactor = [[((-1) ** (i + j)) * determinant(minor_m(matrix, i, j))
-                 for j in range(len(matrix[i]))] for i in range(len(matrix))]
-
-    return transponse(cofactor)
+""" Compute the inverse of a simetric matrix"""
 
 
 def inverse(matrix):
-    """Calculate inverse matrix.
-    Args:
-        matrix (list): matrix.
-    Returns:
-        inverse matrix.
-    """
-    if type(matrix) is not list or len(matrix) == 0:
-        raise TypeError("matrix must be a list of lists")
-    if all([type(i) is list for i in matrix]) is False:
-        raise TypeError("matrix must be a list of lists")
-
-    if (len(matrix) == 0 or len(matrix) != len(matrix[0])) \
-            or matrix == [[]]:
-        raise ValueError("matrix must be a non-empty square matrix")
-
-    if any([len(l) != len(matrix) for l in matrix]):
-        raise ValueError("matrix must be a non-empty square matrix")
-
-    det = determinant(matrix)
-    if det == 0:
+    """ Finds the inverse of matrix"""
+    deter = determinant(matrix)
+    adj = adjugate(matrix)
+    if deter is 0:
         return None
+    inv = []
+    for i in range(len(matrix)):
+        row = [adj[i][j]/deter for j in range(len(matrix[i]))]
+        inv.append(row)
+    return inv
 
-    adjugated = adjugate(matrix)
 
-    return [[n / det for n in row] for row in adjugated]
+def adjugate(matrix):
+    """ Calculate adjugate of matrix"""
+    if not isinstance(matrix, list) or len(matrix) == 0:
+        raise TypeError("matrix must be a list of lists")
+    if not all([isinstance(row, list) for row in matrix]):
+        raise TypeError("matrix must be a list of lists")
+    if not all([len(row) == len(matrix) for row in matrix]):
+        raise ValueError("matrix must be a non-empty square matrix")
+    cof = cofactor(matrix)
+    return [[row[i] for row in cof] for i in range(len(cof[0]))]
+
+
+def cofactor(matrix):
+    """
+    matrix is a list of lists whose cofactor matrix should be calculated
+    Returns: the cofactor matrix of matrix
+    """
+    cofactor_m = minor(matrix)
+    for i in range(len(matrix)):
+        for j in range(len(matrix[i])):
+            cofactor_m[i][j] = (-1) ** (i + j) * cofactor_m[i][j]
+    return cofactor_m
+
+
+def minor(matrix):
+    """
+    matrix is a list of lists whose determinant should be calculated
+    Returns: the minor of matrix
+    """
+    if len(matrix) is 1:
+        return [[1]]
+    if len(matrix) == 2:
+        return [[matrix[1][1], matrix[1][0]], [matrix[0][1], matrix[0][0]]]
+    minor_m = []
+    for i in range(len(matrix)):
+        minor_row = []
+        for j in range(len(matrix[i])):
+            minor_row.append(determinant(getMatrixMinor(matrix, i, j)))
+        minor_m.append(minor_row)
+    return minor_m
+
+
+def getMatrixMinor(m, i, j):
+    """selects the minor of a squared matrix"""
+    return [row[:j] + row[j+1:] for row in (m[:i] + m[i+1:])]
+
+
+def determinant(matrix):
+    """
+    matrix is a list of lists whose determinant should be calculated
+    Returns: the determinant of matrix
+    """
+    if not isinstance(matrix, list) or len(matrix) == 0:
+        raise TypeError("matrix must be a list of lists")
+    if not all([isinstance(row, list) for row in matrix]):
+        raise TypeError("matrix must be a list of lists")
+    if len(matrix) == 1 and len(matrix[0]) == 0:
+        return 1
+    if len(matrix) == 1 and len(matrix[0]) == 1:
+        return matrix[0][0]
+    square = [len(row) == len(matrix) for row in matrix]
+    if not all(square):
+        raise ValueError('matrix must be a square matrix')
+    if len(matrix) is 2:
+        return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]
+    deter = 0
+    for c in range(len(matrix)):
+        deter += ((-1) ** c) * matrix[0][c] *\
+                 determinant(getMatrixMinor(matrix, 0, c))
+    return deter
