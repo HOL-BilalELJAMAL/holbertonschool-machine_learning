@@ -5,70 +5,6 @@ Module that defines a function called adjugate
 """
 
 
-def minor_m(m, row, col):
-    """Function that omits the the given row and column of a square matrix.
-
-    Args:
-        m (list): matrix.
-        row (int): row to omite.
-        col (int): column to omite.
-
-    Returns:
-        the matrix with the omited row, column.
-    """
-    return [[m[i][j] for j in range(len(m[i])) if j != col]
-            for i in range(len(m)) if i != row]
-
-
-def determinant(matrix):
-    """
-    Function that calculates the determinant of a square matrix.
-
-    Args:
-        matrix (list): matrix to calculate.
-
-    Returns:
-        the determinant.
-    """
-    if type(matrix) is not list or len(matrix) == 0:
-        raise TypeError("matrix must be a list of lists")
-    if all([type(i) is list for i in matrix]) is False:
-        raise TypeError("matrix must be a list of lists")
-
-    if matrix[0] and len(matrix) != len(matrix[0]):
-        raise ValueError("matrix must be a square matrix")
-
-    if matrix == [[]]:
-        return 1
-
-    if len(matrix) == 1:
-        return matrix[0][0]
-
-    if len(matrix) == 2:
-        return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]
-
-    det = 0
-    for j in range(len(matrix[0])):
-        omited_matrix = minor_m(matrix, 0, j)
-        det += matrix[0][j] * ((-1) ** j) * determinant(omited_matrix)
-
-    return det
-
-
-def transponse(m):
-    """
-    Function that transposes a matrix.
-
-    Args:
-        m (list): matrix.
-
-    Returns:
-        The transposed matrix
-    """
-    return [[m[row][col] for row in range(len(m))]
-            for col in range(len(m[0]))]
-
-
 def adjugate(matrix):
     """
     Function that calculates the adjugate of a square matrix.
@@ -79,23 +15,104 @@ def adjugate(matrix):
     Returns:
         The adjugate.
     """
-    if type(matrix) is not list or len(matrix) == 0:
+    if not isinstance(matrix, list) or len(matrix) == 0:
+        raise TypeError("matrix must be a list of lists")
+    if not all([isinstance(row, list) for row in matrix]):
+        raise TypeError("matrix must be a list of lists")
+    if not all([len(row) == len(matrix) for row in matrix]):
+        raise ValueError("matrix must be a non-empty square matrix")
+    matrix_cof = cofactor(matrix)
+    return [[row[i] for row in matrix_cof] for i in range(len(matrix_cof[0]))]
+
+
+def cofactor(matrix):
+    """
+    Function that calculates the cofactor of a square matrix.
+
+    Args:
+        matrix (list): matrix to calculate.
+
+    Returns:
+        the cofactor.
+    """
+    if not isinstance(matrix, list) or len(matrix) == 0:
+        raise TypeError("matrix must be a list of lists")
+    if not all([isinstance(row, list) for row in matrix]):
+        raise TypeError("matrix must be a list of lists")
+    if not all(len(row) == len(matrix) for row in matrix):
+        raise ValueError("matrix must be a non-empty square matrix")
+    result_cofactor = minor(matrix)
+    for i in range(len(matrix)):
+        for j in range(len(matrix[i])):
+            result_cofactor[i][j] = (-1) ** (i + j) * result_cofactor[i][j]
+    return result_cofactor
+
+
+def minor(matrix):
+    """
+    Function that calculates the minor of a square matrix.
+
+    Args:
+        matrix (list): matrix to calculate.
+
+    Returns:
+        The minor.
+    """
+    if not isinstance(matrix, list) or len(matrix) == 0:
+        raise TypeError("matrix must be a list of lists")
+    if not all([isinstance(row, list) for row in matrix]):
+        raise TypeError("matrix must be a list of lists")
+    if not all([len(row) == len(matrix) for row in matrix]):
+        raise ValueError("matrix must be a non-empty square matrix")
+    if len(matrix) is 1:
+        return [[1]]
+    if len(matrix) == 2:
+        return [[matrix[1][1], matrix[1][0]], [matrix[0][1], matrix[0][0]]]
+    result = []
+    for i in range(len(matrix)):
+        minor_row = []
+        for j in range(len(matrix[i])):
+            minor_row.append(determinant(getMinor(matrix, i, j)))
+        result.append(minor_row)
+    return result
+
+
+def getMinor(m, i, j):
+    """Function that calculates the minor of a squared matrix"""
+    return [row[:j] + row[j+1:] for row in (m[:i] + m[i+1:])]
+
+
+def determinant(matrix):
+    """
+    Function that calculates the determinant of a square matrix.
+
+    Args:
+        matrix (list): matrix to calculate.
+
+    Returns:
+        The determinant.
+    """
+    if not isinstance(matrix, list) or len(matrix) == 0:
         raise TypeError("matrix must be a list of lists")
 
-    if all([type(i) is list for i in matrix]) is False:
+    if not all([isinstance(row, list) for row in matrix]):
         raise TypeError("matrix must be a list of lists")
 
-    if (len(matrix) == 0 or len(matrix) != len(matrix[0])) \
-            or matrix == [[]]:
-        raise ValueError("matrix must be a non-empty square matrix")
-
-    if any([len(l) != len(matrix) for l in matrix]):
-        raise ValueError("matrix must be a non-empty square matrix")
+    if len(matrix) == 1 and len(matrix[0]) == 0:
+        return 1
 
     if len(matrix) == 1 and len(matrix[0]) == 1:
-        return [[1]]
+        return matrix[0][0]
 
-    cofactor = [[((-1) ** (i + j)) * determinant(minor_m(matrix, i, j))
-                 for j in range(len(matrix[i]))] for i in range(len(matrix))]
+    square = [len(row) == len(matrix) for row in matrix]
+    if not all(square):
+        raise ValueError('matrix must be a square matrix')
 
-    return transponse(cofactor)
+    if len(matrix) is 2:
+        return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]
+
+    deter = 0
+    for c in range(len(matrix)):
+        deter += ((-1) ** c) * matrix[0][c] *\
+                 determinant(getMinor(matrix, 0, c))
+    return deter
