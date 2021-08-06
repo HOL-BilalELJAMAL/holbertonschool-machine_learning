@@ -30,10 +30,12 @@ def P_init(X, perplexity):
             beta_i = 1/(2*sigma_i^2)
         H is the Shannon entropy for perplexity perplexity
     """
-    n, d = X.shape
-    sum_X = np.sum(np.square(X), 1)
-    D = np.add(np.add(-2 * np.dot(X, X.T), sum_X).T, sum_X)
-    P = np.zeros([n, n], dtype='float64')
-    betas = np.ones([n, 1], dtype='float64')
+    n = X.shape[0]
+    X_sum = np.sum(np.square(X), 1)
+    D = np.add(np.add(-2 * np.dot(X, X.T), X_sum).T, X_sum)
+    np.fill_diagonal(D, 0.)
+    betas = np.ones((n, 1))
+    P = np.zeros((n, n))
+    P_sum = sum(P)
     H = np.log2(perplexity)
-    return D, P, betas, H
+    return (D, P, betas, H)
