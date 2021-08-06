@@ -32,26 +32,19 @@ def tsne(X, ndims=2, idims=50, perplexity=30.0, iterations=1000, lr=500):
     n, _ = X.shape
     P = P_affinities(X, perplexity=perplexity) * 4
     Y = np.random.randn(n, ndims)
-    actualY = Y
-
-    for i in range(0, iterations):
+    iY = np.zeros((n, ndims))
+    for i in range(1, iterations + 1):
+        dY, Q = grads(Y, P)
+        if i <= 20:
+            momentum = 0.5
+        else:
+            momentum = 0.8
+        iY = momentum * iY - lr * dY
+        Y = Y + iY
+        Y = Y - np.tile(np.mean(Y, 0), (n, 1))
         if i != 0 and i % 100 == 0:
             C = cost(P, Q)
             print("Cost at iteration {}: {}".format(i, C))
-
-        dY, Q = grads(Y, P)
-
-        if i <= 20:
-            alpha = 0.5
-        else:
-            alpha = 0.8
-
-        auxiliar = Y
-        Y = Y - lr * dY + alpha * (Y - actualY)
-        actualY = auxiliar
-        Y = Y - np.mean(Y, axis=0)
-
         if i == 100:
             P = P / 4.
-
     return Y
