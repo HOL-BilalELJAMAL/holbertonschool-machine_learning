@@ -28,32 +28,25 @@ def tsne(X, ndims=2, idims=50, perplexity=30.0, iterations=1000, lr=500):
         Y, a numpy.ndarray of shape (n, ndim) containing the optimized low
         dimensional transformation of X
     """
+    X = pca(X, idims)
+    n, _ = X.shape
     initial_momentum = 0.5
     final_momentum = 0.8
-
-    n, d = X.shape
+    P = P_affinities(X, perplexity=perplexity) * 4
     Y = np.random.randn(n, ndims)
     iY = np.zeros((n, ndims))
-
-    pca_result = pca(X, idims)
-    P = P_affinities(pca_result, perplexity=perplexity)
-    P = 4 * P
-
-    for i in range(iterations):
+    for i in range(1, iterations + 1):
         dY, Q = grads(Y, P)
-        if i < 20:
+        if i <= 20:
             momentum = initial_momentum
         else:
             momentum = final_momentum
-
         iY = momentum * iY - lr * dY
-        Y = Y + iY - np.tile(np.mean(Y, 0), (n, 1))
-
-        if (i + 1) % 100 == 0:
+        Y = Y + iY
+        Y = Y - np.tile(np.mean(Y, 0), (n, 1))
+        if i != 0 and i % 100 == 0:
             C = cost(P, Q)
-            print("Cost at iteration {}: {}".format(i + 1, C))
-
-        if (i + 1) == 100:
-            P = P / 4
-
+            print("Cost at iteration {}: {}".format(i, C))
+        if i == 100:
+            P = P / 4.
     return Y
