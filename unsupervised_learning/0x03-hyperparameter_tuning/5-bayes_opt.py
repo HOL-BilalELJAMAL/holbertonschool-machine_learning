@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
-"""Class BayesianOptimization Bayesian
-optimization on a noiseless 1D Gaussian process"""
+"""
+5-bayes_opt.py
+Module that defines a class called BayesianOptimization
+"""
 
 import numpy as np
 from scipy.stats import norm
@@ -8,10 +10,29 @@ GP = __import__('2-gp').GaussianProcess
 
 
 class BayesianOptimization:
-    """Class BayesianOptimization"""
+    """BayesianOptimization Class"""
     def __init__(self, f, X_init, Y_init, bounds, ac_samples,
                  l=1, sigma_f=1, xsi=0.01, minimize=True):
-        """Constructor"""
+        """
+        Class constructor
+
+        Args:
+            f: black-box function to be optimized
+            X_init: numpy.ndarray of shape (t, 1)
+            representing the inputs already sampled with the black-box function
+            Y_init: numpy.ndarray of shape (t, 1) representing the outputs
+            of the black-box function for each input in X_init
+            bounds: tuple of (min, max) representing the bounds
+            of the space in which to look for the optimal point
+            ac_samples: number of samples that should be analyzed
+            during acquisition
+            l: length parameter for the kernel
+            sigma_f: standard deviation given to the output of the
+            black-box function
+            xsi: exploration-exploitation factor for acquisition
+            minimize: bool determining whether optimization
+            should be performed for minimization (True) or maximization (False)
+        """
         self.f = f
         self.gp = GP(X_init, Y_init, l, sigma_f)
         self.minimize = minimize
@@ -19,7 +40,16 @@ class BayesianOptimization:
         self.X_s = np.linspace(bounds[0], bounds[1], ac_samples).reshape(-1, 1)
 
     def acquisition(self):
-        """Method that calculates the next best sample location"""
+        """
+        Function that calculates the next best sample location
+
+        Returns:
+            X_next, EI
+            X_next is a numpy.ndarray of shape (1,)
+                representing the next best sample point
+            EI is a numpy.ndarray of shape (ac_samples,)
+                containing the expected improvement of each potential sample
+        """
         mu, sigma = self.gp.predict(self.X_s)
         sigma = sigma.reshape(-1, 1)
         with np.errstate(divide='warn'):
@@ -36,7 +66,19 @@ class BayesianOptimization:
         return (X_next, ei.reshape(-1))
 
     def optimize(self, iterations=100):
-        """Method that calculates the next best sample location"""
+        """
+        Function that optimizes the black-box function
+
+        Args:
+            iterations:  maximum number of iterations to perform
+
+        Returns:
+            X_opt, Y_opt
+            X_opt is a numpy.ndarray of shape (1,)
+                representing the optimal point
+            Y_opt is a numpy.ndarray of shape (1,)
+                representing the optimal function value
+        """
         for i in range(iterations):
             X_next, _ = self.acquisition()
             Y_next = self.f(X_next)
@@ -50,4 +92,4 @@ class BayesianOptimization:
             index = np.argmax(self.gp.Y)
         Y_opt = self.gp.Y[index]
         X_opt = self.gp.X[index]
-        return (X_opt, Y_opt)
+        return X_opt, Y_opt
