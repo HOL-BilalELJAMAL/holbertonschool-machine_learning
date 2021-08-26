@@ -89,9 +89,12 @@ class BayesianOptimization:
         """
         for i in range(0, iterations):
             X_next, EI = self.acquisition()
+
             if X_next in self.gp.X:
                 break
+
             Y_next = self.f(X_next)
+
             self.gp.update(X_next, Y_next)
 
         if self.minimize is True:
