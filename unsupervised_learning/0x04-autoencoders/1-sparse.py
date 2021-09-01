@@ -26,51 +26,23 @@ def sparse(input_dims, hidden_layers, latent_dims, lambtha):
         decoder is the decoder model
         auto is the sparse autoencoder model
     """
-    inputs = keras.Input(shape=(input_dims,))
-
-    reg = keras.regularizers.l1(lambtha)
-
-    my_layer = keras.layers.Dense(units=hidden_layers[0],
-                                  activation='relu',
-                                  activity_regularizer=reg,
-                                  input_shape=(input_dims,))(inputs)
-
+    model_input = keras.layers.Input(shape=(input_dims,))
+    encoded = keras.layers.Dense(hidden_layers[0],
+                                 activation='relu')(model_input)
     for i in range(1, len(hidden_layers)):
-        my_layer = keras.layers.Dense(units=hidden_layers[i],
-                                      activity_regularizer=reg,
-                                      activation='relu'
-                                      )(my_layer)
-
-    my_layer = keras.layers.Dense(units=latent_dims,
-                                  activity_regularizer=reg,
-                                  activation='relu'
-                                  )(my_layer)
-
-    encoder = keras.Model(inputs=inputs, outputs=my_layer)
-
-    inputs_dec = keras.Input(shape=(latent_dims,))
-
-    my_layer_dec = keras.layers.Dense(units=hidden_layers[-1],
-                                      activation='relu',
-                                      input_shape=(latent_dims,))(inputs_dec)
-
-    for i in range(len(hidden_layers) - 2, -1, -1):
-        my_layer_dec = keras.layers.Dense(units=hidden_layers[i],
-                                          activation='relu'
-                                          )(my_layer_dec)
-
-    my_layer_dec = keras.layers.Dense(units=input_dims,
-                                      activation='sigmoid'
-                                      )(my_layer_dec)
-
-    decoder = keras.Model(inputs=inputs_dec, outputs=my_layer_dec)
-
-    auto_bottleneck = encoder.layers[-1].output
-    auto_output = decoder(auto_bottleneck)
-
-    auto = keras.Model(inputs=inputs, outputs=auto_output)
-
-    auto.compile(optimizer=keras.optimizers.Adam(),
-                 loss='binary_crossentropy')
-
+        encoded = keras.layers.Dense(hidden_layers[i],
+                                     activation='relu')(encoded)
+    regu = keras.regularizers.l1(lambtha)
+    encoded = keras.layers.Dense(latent_dims, activation='relu',
+                                 activity_regularizer=regu)(encoded)
+    decoded = keras.layers.Input(shape=(latent_dims,))
+    input_d = decoded
+    for i in range(len(hidden_layers) - 1, -1, -1):
+        decoded = keras.layers.Dense(hidden_layers[i],
+                                     activation='relu')(decoded)
+    decoded = keras.layers.Dense(input_dims, activation='sigmoid')(decoded)
+    encoder = keras.models.Model(model_input, encoded)
+    decoder = keras.models.Model(input_d, decoded)
+    auto = keras.models.Model(model_input, decoder(encoder(model_input)))
+    auto.compile(optimizer='adam', loss='binary_crossentropy')
     return encoder, decoder, auto
