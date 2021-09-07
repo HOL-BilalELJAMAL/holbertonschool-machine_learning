@@ -2,8 +2,8 @@
 """
 1-rnn.py
 Module that defines a function called rnn
-
 """
+
 import numpy as np
 
 
