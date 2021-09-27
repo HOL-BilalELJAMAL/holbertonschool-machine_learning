@@ -8,7 +8,7 @@ import tensorflow as tf
 
 
 def sdp_attention(Q, K, V, mask=None):
-    """Function that computes the scaled dot product (sdp) attention"""
+    """Function that computes the scaled dot product attention"""
     matmul_qk = tf.matmul(Q, K, transpose_b=True)
     dk = tf.cast(tf.shape(K)[-1], tf.float32)
     scaled_attention_logits = matmul_qk / tf.math.sqrt(dk)
