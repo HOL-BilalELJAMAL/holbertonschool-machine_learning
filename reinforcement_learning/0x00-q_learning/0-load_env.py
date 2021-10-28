@@ -12,7 +12,6 @@ def load_frozen_lake(desc=None, map_name=None, is_slippery=False):
     """
     Function that loads a pre-made FrozenLakeEnv environment from OpenAI’s gym
     """
-
     env = gym.make("FrozenLake-v0",
                    desc=desc,
                    map_name=map_name,
