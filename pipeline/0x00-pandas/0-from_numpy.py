@@ -2,7 +2,6 @@
 """
 0-from_numpy.py
 Module that defines a function called from_numpy
-
 """
 
 import pandas as pd
