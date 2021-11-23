@@ -3,6 +3,7 @@
 11-concat.py
 Module that indexes the DataFrame on the Timestamp columns and concatenates
 """
+
 import pandas as pd
 from_file = __import__('2-from_file').from_file
 
