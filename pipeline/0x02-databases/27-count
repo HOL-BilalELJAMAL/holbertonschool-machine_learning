@@ -1,1 +1,2 @@
-# 0x02-databases
+// counts the number of documents in the collection school in MongoDB
+db.school.count()
